@@ -1,17 +1,22 @@
 import lxml.html as lh
 import requests
 import time
-import StatsAnalysis
 import praw
 
 # Data file holding ICO data
-ICO_text = open("ICOData2.txt", "w")
-ICO_text_stored = open("ICOData_DONOT.txt", "r")
-names = StatsAnalysis.get_name(ICO_text_stored)
+ICO_text_stored = open("ICOData_DONOT.txt", "a")
 
-reddit = praw.Reddit(#Reddit API Information)
+reddit = praw.Reddit('''Your Reddit Credentials''')
 
-print(str(reddit.subreddit("mercuryprotocol").subscribers))
+
+def get_name(file):
+    name = []
+
+    for linet in file:
+        words = linet.split(',')
+        name.append(words[0])
+
+    return name
 
 
 def further_scrapes(url):
@@ -30,7 +35,7 @@ def further_scrapes(url):
             frt[oneof] = "0"
 
     for oneof in frt:
-        ICO_text.write(oneof.rstrip('\n') + ', ')
+        ICO_text_stored.write(oneof.rstrip('\n') + ', ')
 
     print("finished")
 
@@ -97,6 +102,7 @@ def find_members(url, big_three):
 
 # Request URL that hosts statistics for individual ICOs that have ended
 page = requests.get("https://icodrops.com/category/ended-ico/")
+names = get_name(ICO_text_stored) # Get names of already stored ICOs
 page_tree = lh.fromstring(page.content)  # Convert it into a readable tree
 
 icodrop_links = page_tree.cssselect("[class = 'col-md-12 col-12 a_ico']")  # Get list of all ended ICOs
@@ -106,27 +112,29 @@ for ico in icodrop_links:
     if len(ico.cssselect("[class = 'notset']")) == 0 and name_of_ico not in names:
         # Ensure that ICO has a pecuniary goal to fulfill and has not already been scraped
         time.sleep(30)
-        ICO_text.write(  # Get Name of the ICO
+        ICO_text_stored.write(  # Get Name of the ICO
             name_of_ico + ', ')
         further_scrapes(ico.cssselect("[id = 'ccc']")[0].get('href'))
-        ICO_text.write((remove_unneccessary(ico.cssselect('''[class = "prec"]''')[0].text_content()) + ', '
+        ICO_text_stored.write((remove_unneccessary(ico.cssselect('''[class = "prec"]''')[0].text_content()) + ', '
                         + remove_unneccessary(
             ico.cssselect("[id = 'new_column_categ_invisted']")[0].getchildren()[0].text_content().strip()) +
                         ', ' + remove_unneccessary(ico.cssselect("[id = 'categ_desctop']")[0].text_content().strip()))
                        + '\n')
+        names.append(name_of_ico)
     elif (len(ico.cssselect("[class = 'notset']")) == 1 and name_of_ico not in names and
                   ico.cssselect("[id = 'new_column_categ_invisted']")[0].getchildren()[
                       0].text_content().strip() != "Pending"):
         time.sleep(30)
-        ICO_text.write(  # Get Name of the ICO
+        ICO_text_stored.write(  # Get Name of the ICO
             name_of_ico + ', ')
         further_scrapes(ico.cssselect("[id = 'ccc']")[0].get('href'))
-        ICO_text.write(("N/A" + ', '
+        ICO_text_stored.write(("N/A" + ', '
                         + remove_unneccessary(
             ico.cssselect("[id = 'new_column_categ_invisted']")[0].getchildren()[0].text_content().strip())
                         + '\n'))
+        names.append(name_of_ico)
     counter += 1
     print(counter)
 
-ICO_text.close()
+ICO_text_stored.close()
 exit()
