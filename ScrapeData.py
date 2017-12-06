@@ -9,9 +9,7 @@ ICO_text = open("ICOData2.txt", "w")
 ICO_text_stored = open("ICOData_DONOT.txt", "r")
 names = StatsAnalysis.get_name(ICO_text_stored)
 
-reddit = praw.Reddit(client_id='2cNexwu4N3vAlg', client_secret='iH6NEiJp2yryr2Kz9_YBEfQj_mU',
-                     password='12345678E', user_agent="Getting # of Subscribers by /u/DonkeyDiCs",
-                     username='DonkeyDiCs')
+reddit = praw.Reddit(#Reddit API Information)
 
 print(str(reddit.subreddit("mercuryprotocol").subscribers))
 
