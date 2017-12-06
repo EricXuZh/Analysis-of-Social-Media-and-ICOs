@@ -4,9 +4,11 @@ import time
 import praw
 
 # Data file holding ICO data
+ICO_text_read = open("ICOData_DONOT.txt", "r")
 ICO_text_stored = open("ICOData_DONOT.txt", "a")
+ICO_text_stored.write("\n")
 
-reddit = praw.Reddit('''Your Reddit Credentials''')
+reddit = praw.Reddit('''Your Reddit Credentials here for Reddit API''')
 
 
 def get_name(file):
@@ -102,7 +104,7 @@ def find_members(url, big_three):
 
 # Request URL that hosts statistics for individual ICOs that have ended
 page = requests.get("https://icodrops.com/category/ended-ico/")
-names = get_name(ICO_text_stored) # Get names of already stored ICOs
+names = get_name(ICO_text_read) # Get names of already stored ICOs
 page_tree = lh.fromstring(page.content)  # Convert it into a readable tree
 
 icodrop_links = page_tree.cssselect("[class = 'col-md-12 col-12 a_ico']")  # Get list of all ended ICOs
